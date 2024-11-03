@@ -1,0 +1,195 @@
+import Button from "./Button";
+import styles from "./App.module.css"
+import {useState, useEffect} from "react";
+
+function App() {
+    const [counter, setValue] = useState(0);
+    const [keyword, setKeyword] = useState("");
+    const onClick = () => setValue((prev) => prev + 1);
+    const onChange = (event) => setKeyword(event.target.value);
+    const iRunOnlyOnce = () => {
+        console.log("i run only once");
+    }
+    useEffect(iRunOnlyOnce, []);
+
+    useEffect(() => {
+        console.log("I run when 'counter' changes");
+    }, [counter]);
+
+    useEffect(() => {
+        if (keyword !== "" && keyword.length > 5) {
+            console.log("SEARCH FOR", keyword);
+        }
+    }, [keyword]);
+
+    useEffect(() => {
+        console.log("Keyword && Counter Changes")
+    }, [keyword, counter]);
+
+    return (
+            <div>
+                <div>
+                    <input
+                            value={keyword}
+                            onChange={onChange}
+                            type="text"
+                            placeholder="Search Here..."
+                    />
+                    <h1>{counter}</h1>
+                    <button onClick={onClick}>click me</button>
+                </div>
+                <div>
+                    <h1 className={styles.title}>Welcome Back!</h1>
+                    <Button text={"Continue"}/>
+                </div>
+            </div>
+
+    );
+}
+
+export default App;
+
+
+----------------------
+
+
+
+import Button from "./Button";
+import styles from "./App.module.css"
+import {useState, useEffect} from "react";
+
+function Hello() {
+    function byFn() {
+        console.log("bye : <");
+    }
+
+    function huFn() {
+        console.log("created");
+        return byFn;
+    }
+
+    /*    useEffect(() => {
+            console.log("created :)");
+            return () => console.log("destroyed : (");
+        }, []);*/
+
+    useEffect(huFn, []);
+    return <h1>Hello</h1>;
+}
+
+function App() {
+    const [showing, setShowing] = useState(false);
+    const onClick = () => setShowing((prev) => !prev);
+    return (
+            <div>
+                {showing ? <Hello/> : null}
+                <button onClick={onClick}>{showing ? "Hide" : "Show"}</button>
+            </div>
+    );
+}
+
+export default App;
+
+
+import {useState} from 'react';
+
+function App() {
+    const [toDo, setToDo] = useState("");
+    const [toDos, setToDos] = useState([]);
+    const onChange = (event) => setToDo(event.target.value);
+    const onSubmit = (event) => {
+        event.preventDefault();
+        if (toDo === "") {
+            return;
+        }
+        setToDos((currentArray) => [toDo, ...currentArray]);
+        setToDo("");
+    };
+    console.log(toDos);
+    console.log("@@@", toDos.map((item, index) => <li key={index}>{item}</li>))
+
+    return (
+            <div>
+                <h1>My To Dos ({toDos.length})</h1>
+                <form onSubmit={onSubmit}>
+                    <input onChange={onChange} value={toDo} type={"text"} placeholder={"Write your to do..."}/>
+                    <button>Add To Do</button>
+                </form>
+                <hr/>
+                <ul>
+                    {toDos.map((item, index) => <li key={index}>{item}</li>)}
+                </ul>
+            </div>
+    );
+}
+
+export default App;
+
+----------------
+
+import React, {useEffect, useState} from 'react';
+
+function App() {
+    const [loading, setLoading] = useState(true);
+    const [coins, setCoins] = useState([]);
+    const [usd, setUsd] = useState(0);
+    const [selectedCoinPrice, setSelectedCoinPrice] = useState(0); // 선택한 코인의 가격을 저장
+    const [result, setResult] = useState(0);
+
+    useEffect(() => {
+        fetch("https://api.coinpaprika.com/v1/tickers")
+        .then(response => response.json())
+        .then((json) => {
+            setCoins(json);
+            setLoading(false)
+        });
+    }, []);
+
+    const handleUsdChange = (event) => {
+        const usdValue = event.target.value;
+        setUsd(usdValue);
+        setResult(usdValue / selectedCoinPrice);
+    }
+
+    const handleCoinChange = (event) => {
+        const coinPrice = parseFloat(event.target.value);
+        setSelectedCoinPrice(coinPrice);
+        setResult(usd / coinPrice); // 결과 업데이트
+    }
+
+    return (
+            <div>
+                <h1>The Coins! {loading ? "" : `(${coins.length})`}</h1>
+                <input
+                        id="usd"
+                        type={"number"}
+                        onChange={handleUsdChange}
+                /> <br/>
+                {loading ? <strong>Loading...</strong> : (
+                        <select onChange={handleCoinChange}>
+                            {coins.map((coin) => <option key={coin.id} value={coin.quotes.USD.price}>{coin.name}({coin.symbol}) : ${coin.quotes.USD.price} USD</option>)}
+                        </select>)}
+
+                <h1 id={"result"}>You Can Buy {result} units</h1>
+
+            </div>
+    );
+}
+
+export default App;
+
+
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Home from "./routes/Home";
+
+function App(props) {
+    return (
+        <Router>
+            <Routes>
+                <Route path="/" element={<Home />} />
+            </Routes>
+        </Router>
+    );
+}
+
+export default App;
